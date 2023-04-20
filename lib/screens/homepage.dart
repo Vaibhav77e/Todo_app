@@ -11,6 +11,8 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+  //text controller
+  final _controller = TextEditingController();
   // list of todos
   List todoList = [
     ["Make reward", false],
@@ -19,18 +21,40 @@ class _HomepageState extends State<Homepage> {
     ["Watch anime", false],
   ];
 
+// logic for check box
   void checkedVal(bool? value, int index) {
     setState(() {
       todoList[index][1] = !todoList[index][1];
     });
   }
 
+//save task
+  void saveTask() {
+    setState(() {
+      todoList.add([_controller.text, false]);
+      _controller.clear();
+    });
+    Navigator.of(context).pop();
+  }
+
+//create task
   void createNewTask() {
     showDialog(
         context: context,
         builder: (context) {
-          return DialogBox();
+          return DialogBox(
+            controllertext: _controller,
+            onSave: saveTask,
+            onCancel: () => Navigator.of(context).pop(),
+          );
         });
+  }
+
+  //delete task
+  void deleteTaskValue(int index) {
+    setState(() {
+      todoList.removeAt(index);
+    });
   }
 
   @override
@@ -49,9 +73,11 @@ class _HomepageState extends State<Homepage> {
         itemCount: todoList.length,
         itemBuilder: (context, index) {
           return ToDoList(
-              taskName: todoList[index][0],
-              taskCompleted: todoList[index][1],
-              onChangedValue: (value) => checkedVal(value, index));
+            taskName: todoList[index][0],
+            taskCompleted: todoList[index][1],
+            onChangedValue: (value) => checkedVal(value, index),
+            deleteTask: (context) => deleteTaskValue(index),
+          );
         },
       ),
     );
